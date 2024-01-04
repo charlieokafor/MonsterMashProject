@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Monster Mash</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <style>
+      .custom-card {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 20px;
+        padding: 20px;
+        margin: 20px;
+      }
+      body {
+        /* background-color: #f5f5f5; */
+        background-color: #f8f9fa;
+        font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+      }
+    </style>
+
+    <script type="application/json" id="colorToSizesData">
+      {{ color_to_sizes | tojson | safe }}
+    </script>
+    <script type="application/json" id="colorToLimbsData">
+      {{ color_to_limbs | tojson | safe }}
+    </script>
+    <script type="application/json" id="colorToHeightsData">
+      {{ color_to_heights | tojson | safe }}
+    </script>
+    <script>
+      function updateOptions(dropdownId, optionsList) {
+        var dropdown = document.getElementById(dropdownId);
+        var currentOptions = dropdown.options;
+        console.log(optionsList);
+        for (var i = 0; i < currentOptions.length; i++) {
+          console.log("all options", currentOptions[i].value);
+
+          // Check if the current option is in the optionsList for the selected color
+          if (optionsList.includes(currentOptions[i].value)) {
+            currentOptions[i].style.display = "";
+          } else {
+            currentOptions[i].style.display = "none";
+          }
+        }
+      }
+
+      function syncColors(selectedColor) {
+        // Update both color dropdowns to have the same selected value
+        document.getElementById("parent1_color").value = selectedColor;
+        document.getElementById("parent2_color").value = selectedColor;
+
+        // Mappings passed from Flask
+        var colorToSizes = JSON.parse(
+          document.getElementById("colorToSizesData").textContent
+        );
+        var colorToLimbs = JSON.parse(
+          document.getElementById("colorToLimbsData").textContent
+        );
+        var colorToHeights = JSON.parse(
+          document.getElementById("colorToHeightsData").textContent
+        );
+
+        // Helper function to update dropdown options
+
+        // Update options for limbs, sizes, and heights based on the selected color
+        updateOptions("parent1_limbs", colorToLimbs[selectedColor]);
+        updateOptions("parent1_size", colorToSizes[selectedColor]);
+        updateOptions("parent1_height", colorToHeights[selectedColor]);
+
+        updateOptions("parent2_limbs", colorToLimbs[selectedColor]);
+        updateOptions("parent2_size", colorToSizes[selectedColor]);
+        updateOptions("parent2_height", colorToHeights[selectedColor]);
+      }
+
+      // Call syncColors on page load with the default color
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("dsssds");
+        var defaultColor = document.getElementById("parent1_color").value;
+        syncColors(defaultColor);
+      });
+    </script>
+  </head>
+  <body>
+    <nav class="navbar bg-dark navbar-expand-lg">
+      <div class="container-fluid">
+        <a class="navbar-brand text-light" href="#">Monster Mash</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
+    </nav>
+    <h1 class="text-center">Welcome to Monster Mash</h1>
+
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <div class="custom-card">
+            <form method="post" action="/">
+              <!-- Parent 1 Selection -->
+              <h2>Select Parent 1 Attributes</h2>
+              <div class="mb-3">
+                <label for="parent1_color" class="form-label">Tribe:</label>
+                <select
+                  name="parent1_color"
+                  id="parent1_color"
+                  class="form-select"
+                  onchange="syncColors(this.value)"
+                >
+                  <option value="A">The Purpulian Mystics</option>
+                  <option value="B">The Tawny Nomads</option>
+                  <option value="C">The Lilac Enchanters</option>
+                  <option value="D">The Azure Sentinels</option>
+                  <option value="E">The Umber Guardians</option>
+                  <option value="F">The Mauve Marauders</option>
+                  <option value="G">The Ashen Wanderers</option>
+                  <option value="J">The Cobalt Shadows</option>
+                  <option value="K">The Violet Vanguards</option>
+                  <option value="L">The Brunette Brutes</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="parent1_size" class="form-label">Size:</label>
+                <select
+                  name="parent1_size"
+                  id="parent1_size"
+                  class="form-select"
+                >
+                  <option value="">Select Size</option>
+                  {% for size in unique_sizes %} {{ size }}
+                  <option value="{{ size }}" style="display: none">
+                    {{ size }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="parent1_limbs" class="form-label">Limbs:</label>
+                <select
+                  name="parent1_limbs"
+                  id="parent1_limbs"
+                  class="form-select"
+                >
+                  <option value="">Select Limbs</option>
+                  {% for limb in unique_limbs %}
+                  <option value="{{ limb }}" style="display: none">
+                    {{ limb }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="parent1_height" class="form-label">Height:</label>
+                <select
+                  name="parent1_height"
+                  class="form-select"
+                  id="parent1_height"
+                >
+                  <option value="">Select Height</option>
+                  {% for height in unique_heights %}
+                  <option value="{{ height }}" style="display: none">
+                    {{ height }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <!-- ... (Repeat similar structure for other Parent 1 attributes) ... -->
+
+              <!-- Parent 2 Selection -->
+              <h2>Select Parent 2 Attributes</h2>
+              <div class="mb-3">
+                <label for="parent2_color" class="form-label">Tribe:</label>
+                <select
+                  name="parent2_color"
+                  id="parent2_color"
+                  class="form-select"
+                  onchange="syncColors(this.value)"
+                >
+                  <option value="A">The Purpulian Mystics</option>
+                  <option value="B">The Tawny Nomads</option>
+                  <option value="C">The Lilac Enchanters</option>
+                  <option value="D">The Azure Sentinels</option>
+                  <option value="E">The Umber Guardians</option>
+                  <option value="F">The Mauve Marauders</option>
+                  <option value="G">The Ashen Wanderers</option>
+                  <option value="J">The Cobalt Shadows</option>
+                  <option value="K">The Violet Vanguards</option>
+                  <option value="L">The Brunette Brutes</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="parent2_size" class="form-label">Size:</label>
+                <select
+                  name="parent2_size"
+                  class="form-select"
+                  id="parent2_size"
+                >
+                  <option value="">Select Size</option>
+                  {% for size in unique_sizes %}
+                  <option value="{{ size }}" style="display: none">
+                    {{ size }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="parent2_limbs" class="form-label">Limbs:</label>
+                <select
+                  name="parent2_limbs"
+                  class="form-select"
+                  id="parent2_limbs"
+                >
+                  <option value="">Select Limbs</option>
+                  {% for limb in unique_limbs %}
+                  <option value="{{ limb }}" style="display: none">
+                    {{ limb }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="parent2_height" class="form-label">Height:</label>
+                <select
+                  name="parent2_height"
+                  class="form-select"
+                  id="parent2_height"
+                >
+                  <option value="">Select Height</option>
+                  {% for height in unique_heights %}
+                  <option value="{{ height }}" style="display: none">
+                    {{ height }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <input
+                type="submit"
+                class="btn btn-primary"
+                value="Generate Offspring"
+              />
+            </form>
+            <!-- Display Selected Parent Creatures -->
+            <h2>Selected Parent Creatures</h2>
+            <div>
+            {% for creature in selected_parents %} {% if creature %}
+            <div style="display: inline-block">
+                <h2>Parent {{selected_parents.index(creature)+1}}</h2>
+                <img
+                src="../static/{{parent_images[selected_parents.index(creature)]}}"
+                alt="Parent Image"
+                width="128"
+                height="128"
+                />
+            </div>
+            {% else %}
+            <div>
+                <!-- Placeholder for missing creature image or some message -->
+                <p>Parent creature image not available.</p>
+            </div>
+            {% endif %} {% endfor %}
+            </div>
+
+            <!-- Display Generated Creature -->
+            {% if generated_creature %}
+            <h2>Generated Creature:</h2>
+            <div>
+            <img
+                src="../static/{{generated_creature.image_path}}"
+                alt="Generated Image"
+                width="128"
+                height="128"
+            />
+            </div>
+            {% else %}
+            <div>
+            <!-- Placeholder for missing generated creature image or some message -->
+            <p>Generated creature image not available.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+  </body>
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    crossorigin="anonymous"
+  ></script>
+</html>
